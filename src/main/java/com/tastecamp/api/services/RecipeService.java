@@ -6,6 +6,9 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.tastecamp.api.dtos.RecipeDTO;
+import com.tastecamp.api.exceptions.RecipeNotFoundException;
+import com.tastecamp.api.exceptions.RecipeTitleConflictException;
+import com.tastecamp.api.exceptions.UserNotFoundException;
 import com.tastecamp.api.models.CategoryModel;
 import com.tastecamp.api.models.RecipeModel;
 import com.tastecamp.api.models.UserModel;
@@ -20,7 +23,8 @@ public class RecipeService {
     final UserRepository userRepository;
     final CategoryRepository categoryRepository;
 
-    RecipeService(RecipeRepository recipeRepository, UserRepository userRepository, CategoryRepository categoryRepository) {
+    RecipeService(RecipeRepository recipeRepository, UserRepository userRepository,
+            CategoryRepository categoryRepository) {
         this.recipeRepository = recipeRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
@@ -30,28 +34,28 @@ public class RecipeService {
         return recipeRepository.findAll();
     }
 
-    public Optional<RecipeModel> findById(Long id) {
-        return recipeRepository.findById(id);
+    public RecipeModel findById(Long id) {
+        return recipeRepository.findById(id).orElseThrow(
+                () -> new RecipeNotFoundException("Recipe not found by this id!"));
     }
 
-    public Optional<RecipeModel> save(RecipeDTO dto) {
+    public RecipeModel save(RecipeDTO dto) {
         if (recipeRepository.existsByTitle(dto.getTitle())) {
-            return Optional.empty();
+            throw new RecipeTitleConflictException("This recipe already exists!");
         }
 
-        Optional<UserModel> user = userRepository.findById(dto.getAuthorId());
-
-        if (!user.isPresent()) {
-            return Optional.empty();
-        }
+        UserModel user = userRepository.findById(dto.getAuthorId()).orElseThrow(
+                () -> new UserNotFoundException("User not found by this id!"));
 
         List<CategoryModel> categories = categoryRepository.findAllById(dto.getCategoryIds());
-        
-        RecipeModel recipe = new RecipeModel(dto, user.get(), categories);
-        return Optional.of(recipeRepository.save(recipe));
+
+        RecipeModel recipe = new RecipeModel(dto, user, categories);
+        return recipeRepository.save(recipe);
     }
 
     public RecipeModel update(RecipeDTO dto, Long id) {
+        this.findById(id);
+
         RecipeModel newRecipe = new RecipeModel(dto);
         newRecipe.setId(id);
         return recipeRepository.save(newRecipe);
