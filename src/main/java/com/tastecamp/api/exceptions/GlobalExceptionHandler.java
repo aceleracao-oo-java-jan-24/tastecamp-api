@@ -10,19 +10,18 @@ public class GlobalExceptionHandler {
 
     // User
     @ExceptionHandler({ UserNotFoundException.class })
-    public ResponseEntity<Object> handleUserNotFound(UserNotFoundException exception) {
+    public ResponseEntity<String> handleUserNotFound(UserNotFoundException exception) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 
     // Recipes
     @ExceptionHandler({ RecipeNotFoundException.class })
-    public ResponseEntity<Object> handlerRecipeNotFound(RecipeNotFoundException exception) {
+    public ResponseEntity<String> handlerRecipeNotFound(RecipeNotFoundException exception) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 
     @ExceptionHandler({ RecipeTitleConflictException.class })
-    public ResponseEntity<Object> handlerRecipeTitleConflict(RecipeTitleConflictException exception) {
+    public ResponseEntity<String> handlerRecipeTitleConflict(RecipeTitleConflictException exception) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
     }
-
 }

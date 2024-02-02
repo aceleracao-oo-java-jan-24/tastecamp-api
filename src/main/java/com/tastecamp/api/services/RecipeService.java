@@ -3,6 +3,7 @@ package com.tastecamp.api.services;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tastecamp.api.dtos.RecipeDTO;
@@ -18,7 +19,6 @@ import com.tastecamp.api.repositories.UserRepository;
 
 @Service
 public class RecipeService {
-
     final RecipeRepository recipeRepository;
     final UserRepository userRepository;
     final CategoryRepository categoryRepository;
